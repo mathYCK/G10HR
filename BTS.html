@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新學期導航：班級經營互動遊戲系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; overflow-x: hidden; }
+        .game-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .progress-bar { transition: width 0.5s ease-out; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .bg-gradient-main { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
+    <!-- Header -->
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-indigo-600 mb-2">🚀 新學期導航：我的專屬指南</h1>
+        <p class="text-slate-500 font-medium">在開始航行前，請先透過互動測試你的裝備系統！</p>
+    </header>
+
+    <!-- Main Navigation -->
+    <div id="main-menu" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div onclick="startGame(1)" class="game-card bg-white p-8 rounded-[2rem] border-2 border-blue-100 flex flex-col items-center text-center">
+            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-4xl shadow-sm">🔋</div>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">學習電力站</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">掃描你的學習資源<br>為大腦引擎充電</p>
+            <span class="mt-4 text-xs font-bold text-blue-500 uppercase tracking-widest">對應學習單 Part 1</span>
+        </div>
+
+        <div onclick="startGame(2)" class="game-card bg-white p-8 rounded-[2rem] border-2 border-amber-100 flex flex-col items-center text-center">
+            <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-4xl shadow-sm">⏳</div>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">時光拍賣會</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">管理你的24小時燃料<br>避免能源破產</p>
+            <span class="mt-4 text-xs font-bold text-amber-500 uppercase tracking-widest">對應學習單 Part 2</span>
+        </div>
+
+        <div onclick="startGame(3)" class="game-card bg-white p-8 rounded-[2rem] border-2 border-emerald-100 flex flex-col items-center text-center">
+            <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4 text-4xl shadow-sm">📡</div>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">解密通訊機</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">練習「我訊息」頻率<br>解鎖師生夥伴關係</p>
+            <span class="mt-4 text-xs font-bold text-emerald-500 uppercase tracking-widest">對應學習單 Part 3</span>
+        </div>
+    </div>
+
+    <!-- Game Viewport -->
+    <div id="game-container" class="hidden bg-white mt-8 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[550px] flex flex-col border border-slate-100">
+        <div id="game-header" class="bg-slate-900 text-white px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span id="game-title" class="font-bold tracking-tight">系統運行中</span>
+            </div>
+            <button onclick="backToMenu()" class="text-xs font-bold bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition">放棄任務</button>
+        </div>
+        
+        <div id="game-content" class="flex-grow p-10 flex flex-col items-center justify-center">
+            <!-- Game dynamic content -->
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-md w-full text-center shadow-2xl">
+            <div id="modal-icon" class="text-7xl mb-6">🏆</div>
+            <h2 id="modal-title" class="text-2xl font-black text-slate-800 mb-4">標題</h2>
+            <p id="modal-body" class="text-slate-600 mb-8 leading-relaxed text-lg"></p>
+            <button onclick="closeModal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95">了解！去寫學習單</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Audio Context
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (type === 'success') {
+            osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1046, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    const state = {
+        currentGame: 0,
+        energy: 24,
+        score: 0,
+        inventory: []
+    };
+
+    function startGame(id) {
+        state.currentGame = id;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('game-container').classList.remove('hidden');
+        renderGame();
+    }
+
+    function backToMenu() {
+        document.getElementById('main-menu').classList.remove('hidden');
+        document.getElementById('game-container').classList.add('hidden');
+    }
+
+    function renderGame() {
+        const content = document.getElementById('game-content');
+        const title = document.getElementById('game-title');
+        content.innerHTML = '';
+
+        if (state.currentGame === 1) {
+            title.innerText = "🔋 關卡 1：學習電力掃描";
+            renderLevel1(content);
+        } else if (state.currentGame === 2) {
+            title.innerText = "⏳ 關卡 2：時光拍賣會";
+            state.energy = 24;
+            state.inventory = [];
+            renderLevel2(content);
+        } else if (state.currentGame === 3) {
+            title.innerText = "📡 關卡 3：解密通訊機";
+            renderLevel3(content);
+        }
+    }
+
+    // --- LEVEL 1: RESOURCES ---
+    function renderLevel1(container) {
+        state.score = 0;
+        container.innerHTML = `
+            <div class="text-center w-full max-w-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-slate-700">當遇到這學期的「挑戰科目」時，<br>你會選擇哪些裝備來充電？</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+                    <button onclick="pickRes(this, 25, '獲得專業指引')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all font-bold">👨‍🏫 找任課老師</button>
+                    <button onclick="pickRes(this, 20, '關鍵概念秒懂')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all font-bold">🤖 AI 工具輔助</button>
+                    <button onclick="pickRes(this, 15, '夥伴互相激勵')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all font-bold">🤝 隔壁學霸同學</button>
+                    <button onclick="pickRes(this, 20, '重複觀看教學')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all font-bold">📺 YouTube 影片</button>
+                    <button onclick="pickRes(this, 15, '靜心思考空間')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all font-bold">📚 圖書館自修</button>
+                    <button onclick="pickRes(this, -15, '電力快速流失')" class="p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-red-400 transition-all font-bold">💤 放棄直接睡覺</button>
+                </div>
+                <div class="w-full bg-slate-100 h-10 rounded-full border-4 border-slate-200 overflow-hidden relative">
+                    <div id="bar-1" class="progress-bar bg-blue-500 h-full w-0 flex items-center justify-end px-4">
+                        <span id="bar-text" class="text-white font-bold text-sm"></span>
+                    </div>
+                </div>
+                <p class="mt-4 text-slate-500 font-medium italic" id="res-info">請點擊上方資源進行掃描...</p>
+            </div>
+        `;
+    }
+
+    function pickRes(btn, val, info) {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.classList.add('opacity-40');
+        state.score += val;
+        if (state.score < 0) state.score = 0;
+        if (state.score > 100) state.score = 100;
+
+        document.getElementById('bar-1').style.width = state.score + '%';
+        document.getElementById('bar-text').innerText = state.score + '%';
+        document.getElementById('res-info').innerText = info;
+
+        if (val > 0) playSound('success'); else playSound('error');
+
+        if (state.score >= 85) {
+            setTimeout(() => showModal("🔋 電力充足！", "你收集了強大的學習資源。現在，請打開學習單 Part 1，畫出你的「電力地圖」並寫下你最依賴的裝備。"), 600);
+        }
+    }
+
+    // --- LEVEL 2: TIME ---
+    function renderLevel2(container) {
+        container.innerHTML = `
+            <div class="w-full max-w-xl">
+                <div class="flex justify-between items-center mb-8 bg-amber-50 p-6 rounded-3xl border border-amber-100">
+                    <div>
+                        <p class="text-sm font-bold text-amber-600 uppercase tracking-widest">剩餘能量燃料</p>
+                        <h4 class="text-4xl font-black text-slate-800"><span id="energy-num">24</span> <span class="text-lg">小時</span></h4>
+                    </div>
+                    <div id="inv" class="flex gap-2"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mb-8">
+                    <button onclick="buy(this, 8, '🛌')" class="flex justify-between p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-amber-400 transition-all group">
+                        <span class="font-bold text-slate-700">🛌 充足睡眠 (確保大腦不當機)</span>
+                        <span class="font-bold text-amber-600">8 pts</span>
+                    </button>
+                    <button onclick="buy(this, 8, '🏫')" class="flex justify-between p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-amber-400 transition-all group">
+                        <span class="font-bold text-slate-700">🏫 學校上課 (固定航行時間)</span>
+                        <span class="font-bold text-amber-600">8 pts</span>
+                    </button>
+                    <button onclick="buy(this, 4, '📱')" class="flex justify-between p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-amber-400 transition-all group">
+                        <span class="font-bold text-slate-700">📱 手機與遊戲 (能源黑洞)</span>
+                        <span class="font-bold text-amber-600">4 pts</span>
+                    </button>
+                    <button onclick="buy(this, 4, '✍️')" class="flex justify-between p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-amber-400 transition-all group">
+                        <span class="font-bold text-slate-700">✍️ 功課與自主學習 (動力輸出)</span>
+                        <span class="font-bold text-amber-600">4 pts</span>
+                    </button>
+                </div>
+                <button onclick="checkTime()" class="w-full py-5 bg-amber-500 text-white rounded-[1.5rem] font-black text-xl shadow-lg shadow-amber-200 active:scale-95 transition-all">結束拍賣並結帳</button>
+            </div>
+        `;
+    }
+
+    function buy(btn, cost, icon) {
+        if (state.energy >= cost) {
+            state.energy -= cost;
+            state.inventory.push(icon);
+            document.getElementById('energy-num').innerText = state.energy;
+            document.getElementById('inv').innerHTML += `<span class="text-2xl animate-bounce">${icon}</span>`;
+            btn.disabled = true;
+            btn.classList.add('opacity-40');
+            playSound('click');
+        } else {
+            playSound('error');
+            document.getElementById('energy-num').parentElement.classList.add('shake');
+            setTimeout(() => document.getElementById('energy-num').parentElement.classList.remove('shake'), 500);
+        }
+    }
+
+    function checkTime() {
+        showModal("⌛ 拍賣結算", `你分配了 ${24 - state.energy} 小時。剩下的 ${state.energy} 小時是你的「留白時間」。現在，請到學習單 Part 2 畫出你的 24 小時圓餅圖。`);
+    }
+
+    // --- LEVEL 3: COMMUNICATION ---
+    const scens = [
+        {
+            q: "當你覺得「作業太多、快受不了」時，你會怎麼跟老師說？",
+            opts: [
+                { t: "「老師你作業出超多，煩不煩啊！」", ok: false, fb: "語氣太衝，老師會感受到攻擊而非需求。" },
+                { t: "「老師，最近功課壓力讓我有點焦慮，可以討論調整嗎？」", ok: true, fb: "使用「我訊息」，老師更願意幫你調整。" },
+                { t: "（沈默不語，直接放棄不寫）", ok: false, fb: "斷開連結，老師無法得知你的困境。" }
+            ]
+        }
+    ];
+
+    function renderLevel3(container) {
+        const s = scens[0];
+        container.innerHTML = `
+            <div class="w-full max-w-xl">
+                <div class="text-center mb-8">
+                    <div id="signal" class="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-xl text-white">📡</div>
+                    <p class="font-bold text-slate-600">偵測到情境：作業過量挑戰</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100">
+                    <h3 class="text-xl font-bold mb-6 text-slate-800 text-center">${s.q}</h3>
+                    <div class="space-y-4">
+                        ${s.opts.map((o, i) => `
+                            <button onclick="handleComm(${o.ok}, '${o.fb}')" class="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-emerald-400 hover:bg-emerald-50 text-left font-medium transition-all">
+                                ${o.t}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <p id="comm-fb" class="mt-6 text-center text-emerald-600 font-bold h-6"></p>
+            </div>
+        `;
+    }
+
+    function handleComm(ok, fb) {
+        const fbEl = document.getElementById('comm-fb');
+        const sig = document.getElementById('signal');
+        fbEl.innerText = fb;
+        if (ok) {
+            playSound('success');
+            sig.classList.add('bg-emerald-500');
+            sig.innerText = '✅';
+            setTimeout(() => showModal("📡 通訊成功！", "你學會了表達真實需求，而非發洩情緒。請到學習單 Part 3，寫下你的「我訊息」劇本演練。"), 1000);
+        } else {
+            playSound('error');
+            sig.innerText = '⚠️';
+            sig.classList.add('shake');
+            setTimeout(() => sig.classList.remove('shake'), 500);
+        }
+    }
+
+    // --- MODAL ---
+    function showModal(title, body) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerText = body;
+        document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+        backToMenu();
+    }
+</script>
+
+</body>
+</html>
