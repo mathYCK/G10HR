@@ -9,40 +9,42 @@
         :root {
             --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #e0f2f1 100%);
             --card-bg: #ffffff;
-            --soft-accent: #81ecec;
+            --soft-accent: #00b894;
             --text-dark: #2d3436;
             --text-light: #636e72;
         }
-        body { font-family: 'Segoe UI', 'PingFang TC', sans-serif; background: var(--bg-gradient); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; }
+        body { font-family: 'Segoe UI', 'PingFang TC', sans-serif; background: var(--bg-gradient); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; padding: 10px; min-height: 100vh; margin: 0; }
         
-        #capture-area { background: var(--card-bg); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 95%; max-width: 600px; box-sizing: border-box; border: 1px solid #f1f2f6; }
+        #capture-area { background: var(--card-bg); padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); width: 95%; max-width: 800px; box-sizing: border-box; border: 1px solid #f1f2f6; }
         
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 1.8rem; margin: 0; color: #00b894; }
-        .header p { font-size: 0.95rem; color: var(--text-light); margin-top: 5px; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 1.5rem; margin: 0; color: var(--soft-accent); }
+        .header p { font-size: 0.85rem; color: var(--text-light); margin: 2px 0; }
 
-        /* 姓名欄位樣式 */
-        .name-section { margin-bottom: 25px; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 15px; border-left: 5px solid #00b894; }
-        .name-label { font-weight: bold; font-size: 1rem; display: block; margin-bottom: 8px; }
-        .name-input { width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 1rem; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .name-input:focus { border-color: #00b894; background: #fff; }
+        .name-section { margin-bottom: 15px; background: #f9f9f9; padding: 10px 15px; border-radius: 12px; border-left: 4px solid var(--soft-accent); display: flex; align-items: center; gap: 15px; }
+        .name-label { font-weight: bold; font-size: 0.9rem; white-space: nowrap; }
+        .name-input { flex-grow: 1; padding: 8px; border: 1px solid #dfe6e9; border-radius: 6px; font-size: 0.9rem; outline: none; }
 
-        .question-block { margin-bottom: 22px; padding: 10px 5px; border-bottom: 1px solid #f1f2f6; }
-        .q-title { font-weight: bold; font-size: 1.05rem; display: block; margin-bottom: 4px; }
-        .q-sub { font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 12px; font-style: italic; }
+        /* 問題區域改為網格佈局 */
+        .questions-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .question-block { padding: 10px; border-bottom: 1px solid #f1f2f6; }
+        .q-title { font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 2px; }
+        .q-sub { font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 8px; font-style: italic; }
         
-        select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #dfe6e9; background: #fff; font-size: 1rem; cursor: pointer; color: #2d3436; appearance: none; -webkit-appearance: none; }
+        select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #dfe6e9; background: #fff; font-size: 0.9rem; cursor: pointer; color: #2d3436; }
 
-        .dashboard-ui { margin-top: 30px; padding: 25px; border-radius: 20px; text-align: center; background: #fff; border: 1px solid #f1f2f6; display: flex; flex-direction: column; align-items: center; }
-        #light-circle { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 15px; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); background-color: #f1f2f6; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
-        #msg-zh { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; color: #2d3436; }
-        #msg-en { font-size: 0.95rem; color: var(--text-light); }
+        /* 結果顯示區壓縮高度 */
+        .dashboard-ui { margin-top: 15px; padding: 15px; border-radius: 15px; text-align: center; background: #fff; border: 1px solid #f1f2f6; display: flex; align-items: center; justify-content: center; gap: 20px; }
+        #light-circle { width: 50px; height: 50px; border-radius: 50%; transition: 0.5s; background-color: #f1f2f6; flex-shrink: 0; }
+        .msg-area { text-align: left; }
+        #msg-zh { font-size: 1.1rem; font-weight: bold; margin: 0; color: #2d3436; }
+        #msg-en { font-size: 0.85rem; color: var(--text-light); margin: 0; }
 
-        .footer { font-size: 0.8rem; color: #b2bec3; margin-top: 25px; text-align: center; line-height: 1.6; }
+        .footer { font-size: 0.75rem; color: #b2bec3; margin-top: 15px; text-align: center; }
         
-        .btn-container { text-align: center; margin-top: 25px; }
-        .save-btn { background: #00b894; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2); }
-        .save-btn:hover { background: #55efc4; transform: translateY(-2px); }
+        .btn-container { text-align: center; margin-top: 15px; }
+        .save-btn { background: var(--soft-accent); color: white; border: none; padding: 10px 30px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0, 184, 148, 0.2); }
+        .save-btn:hover { background: #55efc4; transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -50,143 +52,127 @@
 <div id="capture-area">
     <div class="header">
         <h1>My New Semester Navigator</h1>
-        <p>新學期導航</p>
+        <p>新學期導航 / Vibe Check</p>
     </div>
 
     <div class="name-section">
-        <label class="name-label">輸入你的名字 / My Name :</label>
-        <input type="text" id="student-name" class="name-input" placeholder="例：王小明 / Alex Wang...">
+        <label class="name-label">姓名 / Name:</label>
+        <input type="text" id="student-name" class="name-input" placeholder="例：王小明 Alex...">
     </div>
 
-    <div class="question-block">
-        <span class="q-title">1. 身體能量狀態 / Physical Energy</span>
-        <span class="q-sub">最近睡得好嗎？感覺有電嗎？ / How's your energy and sleep?</span>
-        <select class="score-input" onchange="vibeCheck()">
-            <option value="0">請選擇 / Please select...</option>
-            <option value="1">🔋 能量滿格 (Super energetic)</option>
-            <option value="2">🌤️ 還不錯，有些微睏意 (Doing okay)</option>
-            <option value="3">☁️ 需要多喝杯咖啡 (Feeling a bit slow)</option>
-            <option value="4">🌧️ 身體重重的 (Drained/Tired)</option>
-            <option value="5">🌪️ 斷電中，急需休息 (Completely exhausted)</option>
-        </select>
-    </div>
+    <div class="questions-container">
+        <div class="question-block">
+            <span class="q-title">1. 身體能量 / Energy</span>
+            <span class="q-sub">最近睡得好嗎？ / How's your sleep?</span>
+            <select class="score-input" onchange="vibeCheck()">
+                <option value="0">請選擇...</option>
+                <option value="1">🔋 能量滿格 (Super energetic)</option>
+                <option value="2">🌤️ 還不錯 (Doing okay)</option>
+                <option value="3">☁️ 有點睏 (A bit slow)</option>
+                <option value="4">🌧️ 身體重重的 (Drained)</option>
+                <option value="5">🌪️ 斷電中 (Exhausted)</option>
+            </select>
+        </div>
 
-    <div class="question-block">
-        <span class="q-title">2. 學習的小山丘 / Academic Slope</span>
-        <span class="q-sub">想到這學期的課業進度... / How do you feel about your studies?</span>
-        <select class="score-input" onchange="vibeCheck()">
-            <option value="0">請選擇 / Please select...</option>
-            <option value="1">⛰️ 準備好攻頂了 (Ready for the challenge)</option>
-            <option value="2">🏃 穩步前進中 (Steady and manageable)</option>
-            <option value="3">🎒 背包有點沉重 (A bit overwhelming)</option>
-            <option value="4">🚧 看到課表有點想繞道 (Feeling stressed)</option>
-            <option value="5">🛑 暫時想在原地扎營 (Need a break right now)</option>
-        </select>
-    </div>
+        <div class="question-block">
+            <span class="q-title">2. 學習山丘 / Studies</span>
+            <span class="q-sub">想到課業進度... / About your studies?</span>
+            <select class="score-input" onchange="vibeCheck()">
+                <option value="0">請選擇...</option>
+                <option value="1">⛰️ 準備攻頂 (Ready)</option>
+                <option value="2">🏃 穩步前進 (Manageable)</option>
+                <option value="3">🎒 背包稍重 (Overwhelming)</option>
+                <option value="4">🚧 感到壓力 (Stressed)</option>
+                <option value="5">🛑 想先扎營 (Need a break)</option>
+            </select>
+        </div>
 
-    <div class="question-block">
-        <span class="q-title">3. 挑戰的期待感 / Challenge Excitement</span>
-        <span class="q-sub">關於單車環台或其他大型活動... / About the cycling tour or big events...</span>
-        <select class="score-input" onchange="vibeCheck()">
-            <option value="0">請選擇 / Please select...</option>
-            <option value="1">🚴 我已經準備好了！(Can't wait to start!)</option>
-            <option value="2">🚲 有點緊張但會試試 (Nervous but willing)</option>
-            <option value="3">🛹 走一步算一步 (Go with the flow)</option>
-            <option value="4">⚓ 感到有些壓力與退縮 (Feeling hesitant)</option>
-            <option value="5">🆘 內心感到很焦慮 (It feels too much for me)</option>
-        </select>
-    </div>
+        <div class="question-block">
+            <span class="q-title">3. 挑戰期待 / Challenge</span>
+            <span class="q-sub">關於大型活動... / About big events?</span>
+            <select class="score-input" onchange="vibeCheck()">
+                <option value="0">請選擇...</option>
+                <option value="1">🚴 我準備好了！(Ready!)</option>
+                <option value="2">🚲 緊張但試試 (Nervous)</option>
+                <option value="3">🛹 順其自然 (Go with flow)</option>
+                <option value="4">⚓ 有些退縮 (Hesitant)</option>
+                <option value="5">🆘 感到焦慮 (Anxious)</option>
+            </select>
+        </div>
 
-    <div class="question-block">
-        <span class="q-title">4. 內心的氣象 / Inner Weather</span>
-        <span class="q-sub">此刻你的心情顏色是？ / What's your heart's color right now?</span>
-        <select class="score-input" onchange="vibeCheck()">
-            <option value="0">請選擇 / Please select...</option>
-            <option value="1">🌈 晴朗無雲 (Peaceful and happy)</option>
-            <option value="2">🌿 平靜的草地 (Calm and okay)</option>
-            <option value="3">🍂 涼涼的秋天 (A bit restless)</option>
-            <option value="4">🌊 波濤洶湧 (Feeling anxious)</option>
-            <option value="5">🖤 灰濛濛的雨天 (Feeling very heavy)</option>
-        </select>
+        <div class="question-block">
+            <span class="q-title">4. 內心氣象 / Weather</span>
+            <span class="q-sub">此刻的心情顏色？ / Your heart's color?</span>
+            <select class="score-input" onchange="vibeCheck()">
+                <option value="0">請選擇...</option>
+                <option value="1">🌈 晴朗 (Happy)</option>
+                <option value="2">🌿 平靜 (Calm)</option>
+                <option value="3">🍂 悶悶的 (Restless)</option>
+                <option value="4">🌊 不安 (Anxious)</option>
+                <option value="5">🖤 灰雨天 (Heavy)</option>
+            </select>
+        </div>
     </div>
 
     <div class="dashboard-ui">
         <div id="light-circle"></div>
-        <div id="msg-zh">請先完成上面的導航...</div>
-        <div id="msg-en">Complete the check above...</div>
+        <div class="msg-area">
+            <p id="msg-zh">請先完成導航...</p>
+            <p id="msg-en">Complete the check...</p>
+        </div>
     </div>
 
     <div class="footer">
-        這學期，我們不只要前進，更要學會照顧自己。<br>
-        No matter your weather, I am here to support you.
+        這學期，我們一起學會照顧自己。 No matter your weather, I am here for you.
     </div>
 </div>
 
 <div class="btn-container">
-    <button class="save-btn" onclick="saveVibe()">儲存並下載截圖 / Save & Download</button>
+    <button class="save-btn" onclick="saveVibe()">儲存截圖 / Save & Download</button>
 </div>
 
 <script>
     function vibeCheck() {
         const inputs = document.querySelectorAll('.score-input');
-        let total = 0;
-        let answered = 0;
-        inputs.forEach(input => {
-            if (input.value !== "0") {
-                total += parseInt(input.value);
-                answered++;
-            }
-        });
-
-        const light = document.getElementById('light-circle');
-        const zh = document.getElementById('msg-zh');
-        const en = document.getElementById('msg-en');
-
+        let total = 0, answered = 0;
+        inputs.forEach(input => { if (input.value !== "0") { total += parseInt(input.value); answered++; } });
+        const light = document.getElementById('light-circle'), zh = document.getElementById('msg-zh'), en = document.getElementById('msg-en');
         if (answered < 4) return;
-
-        // 溫馨的回饋邏輯
         if (total <= 6) {
             light.style.backgroundColor = "#55efc4";
-            light.style.boxShadow = "0 0 25px #55efc4";
             zh.innerText = "能量充足：目前非常平衡！";
-            en.innerText = "Balanced & Ready! Keep up the good vibes.";
+            en.innerText = "Balanced & Ready! Keep it up.";
         } else if (total <= 10) {
             light.style.backgroundColor = "#81ecec";
-            light.style.boxShadow = "0 0 25px #81ecec";
             zh.innerText = "微風徐徐：穩定的開始。";
-            en.innerText = "Steady flow. You're doing just fine.";
+            en.innerText = "Steady flow. Doing just fine.";
         } else if (total <= 14) {
             light.style.backgroundColor = "#ffeaa7";
-            light.style.boxShadow = "0 0 25px #ffeaa7";
-            zh.innerText = "天空微陰：記得多疼愛自己一點。";
-            en.innerText = "A bit cloudy. Be gentle with yourself.";
+            zh.innerText = "天空微陰：記得多疼愛自己。";
+            en.innerText = "A bit cloudy. Be gentle to yourself.";
         } else if (total <= 17) {
             light.style.backgroundColor = "#ffccbc";
-            light.style.boxShadow = "0 0 25px #ffccbc";
-            zh.innerText = "感覺有點辛苦，休息一下也沒關係。";
+            zh.innerText = "有點辛苦，休息一下沒關係。";
             en.innerText = "It's tough. It's okay to slow down.";
         } else {
             light.style.backgroundColor = "#ff7675";
-            light.style.boxShadow = "0 0 25px #ff7675";
-            zh.innerText = "親愛的，老師看見你的努力了，我們一起聊聊。";
-            en.innerText = "I see your struggle. You are not alone in this.";
+            zh.innerText = "老師看見你的努力了，我們聊聊。";
+            en.innerText = "I see your struggle. You're not alone.";
         }
     }
 
     function saveVibe() {
         const btn = document.querySelector('.save-btn');
-        btn.style.visibility = 'hidden'; // 截圖時隱藏按鈕
-        
+        btn.style.visibility = 'hidden';
         html2canvas(document.querySelector("#capture-area")).then(canvas => {
             const link = document.createElement('a');
             const name = document.getElementById('student-name').value || 'Student';
-            link.download = `Vibe_Check_2026_${name}.png`;
+            link.download = `Vibe_Check_${name}.png`;
             link.href = canvas.toDataURL();
             link.click();
             btn.style.visibility = 'visible';
         });
     }
 </script>
-
 </body>
 </html>
