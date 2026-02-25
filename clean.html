@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班級打掃管理系統 (自動化名單版)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            font-size: 1.2rem;
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group label {
+            font-weight: bold;
+            min-width: 100px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .input-group input[type="number"] {
+            width: 60px;
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 1rem;
+        }
+        .name-display {
+            color: #16a085;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            max-width: 200px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-clear {
+            background-color: #7f8c8d;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+        .btn-clear:hover {
+            background-color: #95a5a6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .notice {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>班級打掃管理系統</h1>
+
+    <div class="section">
+        <h2>📋 今日打掃人員安排 (共4名)</h2>
+        <div class="form-group">
+            <label>H604母班：</label>
+            <div class="input-group">
+                <input type="number" id="area1_seat1" placeholder="座號" min="1" oninput="showDutyName(this, 'dutyName1')">
+                <span id="dutyName1" class="name-display"></span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="area1_seat2" placeholder="座號" min="1" oninput="showDutyName(this, 'dutyName2')">
+                <span id="dutyName2" class="name-display"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>H704教室：</label>
+            <div class="input-group">
+                <input type="number" id="area2_seat1" placeholder="座號" min="1" oninput="showDutyName(this, 'dutyName3')">
+                <span id="dutyName3" class="name-display"></span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="area2_seat2" placeholder="座號" min="1" oninput="showDutyName(this, 'dutyName4')">
+                <span id="dutyName4" class="name-display"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⚠️ 中午後未完成登記</h2>
+        <p class="notice">* 輸入座號後系統會自動轉換為姓名，登記後資料會跨日保留。</p>
+        <div class="form-group">
+            <label>欠掃座號：</label>
+            <div class="input-group">
+                <input type="number" id="missingSeat" placeholder="座號" min="1" oninput="showDutyName(this, 'missingNamePreview')">
+                <span id="missingNamePreview" class="name-display"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>負責區域：</label>
+            <select id="missingArea">
+                <option value="H604母班">H604母班</option>
+                <option value="H704教室">H704教室</option>
+            </select>
+        </div>
+        <button class="btn" onclick="addRecord()">➕ 登記未完成名單</button>
+    </div>
+
+    <div class="section">
+        <h2>
+            🚨 跨日累計未掃名單 
+            <button class="btn btn-clear" onclick="clearAllRecords()">🗑️ 清空所有紀錄</button>
+        </h2>
+        <table id="recordTable">
+            <thead>
+                <tr>
+                    <th>欠掃日期</th>
+                    <th>登記時間</th>
+                    <th>座號 / 姓名</th>
+                    <th>負責區域</th>
+                    <th>狀態管理</th>
+                </tr>
+            </thead>
+            <tbody id="recordList">
+                </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // 學生座號與英文名稱的對應表
+    const students = {
+        "1": "Wayne Ting",
+        "2": "Hank Lu",
+        "3": "Wayne Lin",
+        "4": "Ivan Chiu",
+        "5": "Aston Cheung",
+        "6": "Howard Wong",
+        "7": "Hank Yang",
+        "8": "Pan Yip",
+        "9": "Kevin Tsai",
+        "10": "Ryan Chien",
+        "11": "Brian Wang",
+        "12": "Jordan Liu",
+        "13": "Alan Chang",
+        "14": "Lucas Guo",
+        "21": "Katherine Lu",
+        "22": "Chloe Lam Kwoh Yi",
+        "23": "Sophia Shih",
+        "24": "Emily Hsia",
+        "25": "許阡毅 Olivia Hsu",
+        "26": "Kristy Tseng",
+        "27": "Niovi Yu",
+        "28": "Nina Huang",
+        "29": "Chloe Lai",
+        "30": "Catherine Stefanovska",
+        "31": "Alice Wei",
+        "32": "Tina Wang",
+        "33": "Rihanna Feng"
+    };
+
+    // 從 Local Storage 讀取舊紀錄
+    let cleaningRecords = JSON.parse(localStorage.getItem('cleaningRecords')) || [];
+
+    // 網頁載入時渲染表格
+    window.onload = function() {
+        renderTable();
+    };
+
+    // 輸入座號時，即時顯示學生姓名的功能
+    function showDutyName(inputElement, displayId) {
+        const seatNum = inputElement.value.trim();
+        const displayElement = document.getElementById(displayId);
+        
+        if (seatNum === '') {
+            displayElement.textContent = '';
+        } else if (students[seatNum]) {
+            displayElement.textContent = students[seatNum];
+            displayElement.style.color = '#16a085'; // 顯示綠色代表正確
+        } else {
+            displayElement.textContent = '無此座號';
+            displayElement.style.color = '#e74c3c'; // 顯示紅色代表錯誤
+        }
+    }
+
+    // 將紀錄渲染到表格上的功能
+    function renderTable() {
+        const tbody = document.getElementById('recordList');
+        tbody.innerHTML = ''; 
+
+        cleaningRecords.forEach(function(record) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: bold; color: #2980b9;">${record.date}</td>
+                <td>${record.time}</td>
+                <td style="font-weight: bold; color: #d35400;">${record.seatNum}號 - ${record.name}</td>
+                <td>${record.area}</td>
+                <td><button class="btn btn-danger" onclick="removeRecord(${record.id})">✅ 補掃完成</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 登記未完成學生的功能
+    function addRecord() {
+        const seatNum = document.getElementById('missingSeat').value.trim();
+        const area = document.getElementById('missingArea').value;
+
+        // 檢查座號是否有效
+        if (!students[seatNum]) {
+            alert('請輸入有效的學生座號！');
+            return;
+        }
+
+        const studentName = students[seatNum];
+        const now = new Date();
+        const dateString = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + String(now.getDate()).padStart(2, '0');
+        const timeString = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+        const newRecord = {
+            id: Date.now(),
+            date: dateString,
+            time: timeString,
+            seatNum: seatNum,
+            name: studentName,
+            area: area
+        };
+
+        cleaningRecords.push(newRecord);
+        localStorage.setItem('cleaningRecords', JSON.stringify(cleaningRecords));
+        
+        renderTable();
+
+        // 登記完畢後清空輸入框與預覽文字
+        document.getElementById('missingSeat').value = '';
+        document.getElementById('missingNamePreview').textContent = '';
+    }
+
+    // 移除補掃完成紀錄
+    function removeRecord(id) {
+        if(confirm('確認該名學生已完成補掃？')) {
+            cleaningRecords = cleaningRecords.filter(record => record.id !== id);
+            localStorage.setItem('cleaningRecords', JSON.stringify(cleaningRecords));
+            renderTable();
+        }
+    }
+
+    // 清空所有紀錄
+    function clearAllRecords() {
+        if(cleaningRecords.length === 0) {
+            alert('目前沒有任何紀錄。');
+            return;
+        }
+        if(confirm('警告：確定要清空「所有」欠掃紀錄嗎？清空後無法復原喔！')) {
+            cleaningRecords = [];
+            localStorage.removeItem('cleaningRecords');
+            renderTable();
+        }
+    }
+</script>
+
+</body>
+</html>
