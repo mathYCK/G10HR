@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班級打掃管理系統 (自動化名單版)</title>
+    <title>班級打掃管理系統 (備份升級版)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -46,6 +46,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .form-group label {
             font-weight: bold;
@@ -91,6 +92,12 @@
         .btn:hover {
             background-color: #2980b9;
         }
+        .btn-success {
+            background-color: #27ae60;
+        }
+        .btn-success:hover {
+            background-color: #2ecc71;
+        }
         .btn-danger {
             background-color: #e74c3c;
             padding: 5px 10px;
@@ -127,6 +134,33 @@
             font-size: 0.9rem;
             margin-bottom: 10px;
         }
+        .backup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .backup-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .btn-copy {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #8e44ad;
+        }
+        .btn-copy:hover {
+            background-color: #9b59b6;
+        }
     </style>
 </head>
 <body>
@@ -162,7 +196,6 @@
 
     <div class="section">
         <h2>⚠️ 中午後未完成登記</h2>
-        <p class="notice">* 輸入座號後系統會自動轉換為姓名，登記後資料會跨日保留。</p>
         <div class="form-group">
             <label>欠掃座號：</label>
             <div class="input-group">
@@ -178,6 +211,25 @@
             </select>
         </div>
         <button class="btn" onclick="addRecord()">➕ 登記未完成名單</button>
+    </div>
+
+    <div class="section" style="background-color: #e8f6f3; border-color: #a3e4d7;">
+        <h2>💾 備份與公告區 (複製貼上用)</h2>
+        <p class="notice" style="color:#16a085;">* 系統會自動產生以下兩組文字，請分別運用。</p>
+        
+        <div class="backup-grid">
+            <div>
+                <label style="font-weight: bold; color: #2c3e50;">📢 給學生的公告 (貼給學生看)</label>
+                <textarea id="announceInput" rows="5" readonly placeholder="目前無人欠掃！"></textarea>
+                <button class="btn btn-copy" onclick="copyText('announceInput')">📋 複製公告文字</button>
+            </div>
+            
+            <div>
+                <label style="font-weight: bold; color: #e67e22;">🔑 系統存檔碼 (老師自己留著備份)</label>
+                <textarea id="dataCodeInput" rows="5" placeholder="將之前備份的代碼貼在這裡，然後點擊下方還原按鈕..."></textarea>
+                <button class="btn btn-success" style="width: 100%; margin-top: 10px;" onclick="importData()">🔄 貼上代碼並還原紀錄</button>
+            </div>
+        </div>
     </div>
 
     <div class="section">
@@ -203,62 +255,35 @@
 </div>
 
 <script>
-    // 學生座號與英文名稱的對應表
     const students = {
-        "1": "Wayne Ting",
-        "2": "Hank Lu",
-        "3": "Wayne Lin",
-        "4": "Ivan Chiu",
-        "5": "Aston Cheung",
-        "6": "Howard Wong",
-        "7": "Hank Yang",
-        "8": "Pan Yip",
-        "9": "Kevin Tsai",
-        "10": "Ryan Chien",
-        "11": "Brian Wang",
-        "12": "Jordan Liu",
-        "13": "Alan Chang",
-        "14": "Lucas Guo",
-        "21": "Katherine Lu",
-        "22": "Chloe Lam Kwoh Yi",
-        "23": "Sophia Shih",
-        "24": "Emily Hsia",
-        "25": "許阡毅 Olivia Hsu",
-        "26": "Kristy Tseng",
-        "27": "Niovi Yu",
-        "28": "Nina Huang",
-        "29": "Chloe Lai",
-        "30": "Catherine Stefanovska",
-        "31": "Alice Wei",
-        "32": "Tina Wang",
-        "33": "Rihanna Feng"
+        "1": "Wayne Ting", "2": "Hank Lu", "3": "Wayne Lin", "4": "Ivan Chiu",
+        "5": "Aston Cheung", "6": "Howard Wong", "7": "Hank Yang", "8": "Pan Yip",
+        "9": "Kevin Tsai", "10": "Ryan Chien", "11": "Brian Wang", "12": "Jordan Liu",
+        "13": "Alan Chang", "14": "Lucas Guo", "21": "Katherine Lu", "22": "Chloe Lam Kwoh Yi",
+        "23": "Sophia Shih", "24": "Emily Hsia", "25": "許阡毅 Olivia Hsu", "26": "Kristy Tseng",
+        "27": "Niovi Yu", "28": "Nina Huang", "29": "Chloe Lai", "30": "Catherine Stefanovska",
+        "31": "Alice Wei", "32": "Tina Wang", "33": "Rihanna Feng"
     };
 
-    // 從 Local Storage 讀取舊紀錄
     let cleaningRecords = JSON.parse(localStorage.getItem('cleaningRecords')) || [];
 
-    // 網頁載入時渲染表格
     window.onload = function() {
         renderTable();
     };
 
-    // 輸入座號時，即時顯示學生姓名的功能
     function showDutyName(inputElement, displayId) {
         const seatNum = inputElement.value.trim();
         const displayElement = document.getElementById(displayId);
-        
-        if (seatNum === '') {
-            displayElement.textContent = '';
-        } else if (students[seatNum]) {
+        if (seatNum === '') { displayElement.textContent = ''; } 
+        else if (students[seatNum]) {
             displayElement.textContent = students[seatNum];
-            displayElement.style.color = '#16a085'; // 顯示綠色代表正確
+            displayElement.style.color = '#16a085';
         } else {
             displayElement.textContent = '無此座號';
-            displayElement.style.color = '#e74c3c'; // 顯示紅色代表錯誤
+            displayElement.style.color = '#e74c3c';
         }
     }
 
-    // 將紀錄渲染到表格上的功能
     function renderTable() {
         const tbody = document.getElementById('recordList');
         tbody.innerHTML = ''; 
@@ -274,22 +299,29 @@
             `;
             tbody.appendChild(tr);
         });
+
+        document.getElementById('dataCodeInput').value = JSON.stringify(cleaningRecords);
+
+        let announceStr = "🚨 跨日累計欠掃名單 🚨\n\n";
+        if(cleaningRecords.length === 0) {
+            announceStr = "🎉 目前表現良好，無人欠掃！";
+        } else {
+            cleaningRecords.forEach(r => {
+                announceStr += `🔹 ${r.date}：${r.seatNum}號 ${r.name} (${r.area})\n`;
+            });
+            announceStr += "\n⚠️ 請以上同學盡快完成補掃！";
+        }
+        document.getElementById('announceInput').value = announceStr;
     }
 
-    // 登記未完成學生的功能
     function addRecord() {
         const seatNum = document.getElementById('missingSeat').value.trim();
         const area = document.getElementById('missingArea').value;
-
-        // 檢查座號是否有效
-        if (!students[seatNum]) {
-            alert('請輸入有效的學生座號！');
-            return;
-        }
+        if (!students[seatNum]) { alert('請輸入有效的學生座號！'); return; }
 
         const studentName = students[seatNum];
         const now = new Date();
-        const dateString = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + String(now.getDate()).padStart(2, '0');
+        const dateString = (now.getMonth() + 1) + '/' + now.getDate();
         const timeString = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
         const newRecord = {
@@ -303,15 +335,12 @@
 
         cleaningRecords.push(newRecord);
         localStorage.setItem('cleaningRecords', JSON.stringify(cleaningRecords));
-        
         renderTable();
 
-        // 登記完畢後清空輸入框與預覽文字
         document.getElementById('missingSeat').value = '';
         document.getElementById('missingNamePreview').textContent = '';
     }
 
-    // 移除補掃完成紀錄
     function removeRecord(id) {
         if(confirm('確認該名學生已完成補掃？')) {
             cleaningRecords = cleaningRecords.filter(record => record.id !== id);
@@ -320,16 +349,42 @@
         }
     }
 
-    // 清空所有紀錄
     function clearAllRecords() {
-        if(cleaningRecords.length === 0) {
-            alert('目前沒有任何紀錄。');
-            return;
-        }
+        if(cleaningRecords.length === 0) { alert('目前沒有任何紀錄。'); return; }
         if(confirm('警告：確定要清空「所有」欠掃紀錄嗎？清空後無法復原喔！')) {
             cleaningRecords = [];
             localStorage.removeItem('cleaningRecords');
             renderTable();
+        }
+    }
+
+    function copyText(elementId) {
+        const copyText = document.getElementById(elementId);
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            alert("已複製公告內容！可以直接貼到 Line 群組了。");
+        }).catch(err => {
+            alert("複製失敗，請手動全選複製。");
+        });
+    }
+
+    function importData() {
+        const inputData = document.getElementById('dataCodeInput').value.trim();
+        if(inputData === "") { alert("請先在框框內貼上系統存檔碼！"); return; }
+        
+        try {
+            const parsedData = JSON.parse(inputData);
+            if(Array.isArray(parsedData)) {
+                cleaningRecords = parsedData;
+                localStorage.setItem('cleaningRecords', JSON.stringify(cleaningRecords));
+                renderTable();
+                alert("✅ 紀錄還原成功！");
+            } else {
+                alert("❌ 代碼格式不正確，請確認是否有複製完整。");
+            }
+        } catch(e) {
+            alert("❌ 代碼解析失敗，請確認複製的代碼完整無缺（包含括號）。");
         }
     }
 </script>
